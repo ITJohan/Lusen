@@ -10,6 +10,7 @@ __asm volatile(
 	) ;
 }
 
+#include <stdlib.h>
 #include <stdint.h>
 #include "graphics.h"
 #include "defines.h"
@@ -17,9 +18,6 @@ __asm volatile(
 #include "keypad.h"
 #include "ball.h"
 #include "ascii.h"
-
-int speed = 40;
-int score = 0;
 
 GEOMETRY lusen_geometry =
 {
@@ -47,8 +45,8 @@ GEOMETRY fruit_geometry =
 	SIZE * SIZE,
 	SIZE,SIZE,
 	{
-		{60,20}, {61,20},
-		{60,21}, {61,21}
+		{9,3}, {10,3},
+		{9,4}, {10,4}
 	}
 };
 	
@@ -56,7 +54,7 @@ OBJECT fruit =
 {
 	&fruit_geometry,
 	0,0,
-	60,20,
+	9,3,
 	draw_object,
 	clear_object,
 	move_object,
@@ -81,15 +79,20 @@ void main(void) {
 	ascii_init();
 	graphic_initialize();
 	//graphic_clear_screen();
+	draw_ascii("0");
+	
+	int speed = 40;
+	int score = 0;
 	
 	POBJECT pLusen = &lusen;
 	POBJECT pFruit = &fruit;
 	
+	//random_position(pFruit);
+	pFruit->draw(pFruit);
 	pLusen->set_speed(pLusen, SIZE, 0);
 	
 	while(1) {
 		pLusen->move(pLusen);
-		pFruit->draw(pFruit);
 		
 		switch (keyb()) {
 			case 2: pLusen->set_speed(pLusen, 0, -SIZE); break;
@@ -98,7 +101,14 @@ void main(void) {
 			case 8: pLusen->set_speed(pLusen, 0, SIZE); break;
 		}
 		
-		//draw_ascii("Score: " + (char) score);
+		if ((pLusen->posx == pFruit->posx) && (pLusen->posy == pFruit->posy)) {
+			score++;
+			pFruit->clear(pFruit);
+			random_position(pFruit);
+			pFruit->draw(pFruit);
+			draw_ascii(itoa(score));
+			speed -= 1;
+		}
 		
 		//delay_milli(speed);
 	}
