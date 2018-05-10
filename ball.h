@@ -26,3 +26,4 @@ void set_object_speed(POBJECT o, int speedx, int speedy);
 void draw_object(POBJECT o);
 void clear_object(POBJECT o);
 void move_object(POBJECT o);
+void random_position(POBJECT o);
