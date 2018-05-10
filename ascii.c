@@ -50,7 +50,6 @@ void ascii_init(void)
 	delay_micro(39);								/* 39us */
 	
 	ascii_gotoxy(1, 1);
-	draw_ascii("Lusen");
 }
 
 void ascii_write_controller(uint8_t c)
