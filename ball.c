@@ -9,9 +9,16 @@ unsigned short rand()
 	return lfsr =  (lfsr >> 1) | (bit << 15);
 }
 
+
 void set_object_speed(POBJECT o, int speedx, int speedy) {
 	o->dirx = speedx;
 	o->diry = speedy;
+}
+
+void set_random_speed(POBJECT o)
+{
+	o->dirx = (rand()%4)+1;
+	o->diry = (rand()%4)+1;
 }
 
 void draw_object(POBJECT o) {
@@ -47,6 +54,13 @@ void update_object(POBJECT o) {
 	}
 	o->posx += o->dirx;
 	o->posy += o->diry;
+}
+
+void move_random_direction(POBJECT o)
+{
+	clear_object(o);
+	update_object(o);
+	draw_object(o);
 }
 
 void move_object(POBJECT o) {

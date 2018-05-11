@@ -9,7 +9,7 @@ typedef struct tGeometry {
 	int numpoints;
 	int sizex;
 	int sizey;
-	POINT px[4];
+	POINT px[28];
 } GEOMETRY, *PGEOMETRY;
 
 typedef struct tObj {
@@ -27,3 +27,4 @@ void draw_object(POBJECT o);
 void clear_object(POBJECT o);
 void move_object(POBJECT o);
 void random_position(POBJECT o);
+void move_random_direction(POBJECT o);
