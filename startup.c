@@ -10,9 +10,6 @@ __asm volatile(
 	) ;
 }
 
-int turn_x = -1;
-int turn_y = -1;
-
 #include <stdlib.h>
 #include <stdint.h>
 #include "graphics.h"
@@ -46,7 +43,7 @@ OBJECT lusen =
 {
 	&lusen_geometry,
 	0,0,
-	11,11,
+	11,9,
 	draw_object,
 	clear_object,
 	move_object,
@@ -95,7 +92,7 @@ OBJECT enemy =
 	draw_object,
 	clear_object,
 	move_random_direction,
-	set_object_speed
+	set_random_speed
 };
 
 void init_app(void) {
@@ -111,20 +108,8 @@ void init_app(void) {
 	GPIO_D->pupdr |= 0xAAAAAAAA;
 }
 
-void main(void) {	
-	init_app();
-	ascii_init();
-	graphic_initialize();
-	//graphic_clear_screen();
-	draw_ascii("0");
-	
-	int speed = 40;
-	int score = 0;
-	
-	POBJECT pLusen = &lusen;
-	POBJECT pFruit = &fruit;
-	POBJECT pEnemy = &enemy;
-	/*
+void draw_frame()
+{
 	for(int i = 0; i < 128; i++)
 		pixel(i,1,1);
 	for(int i = 0; i < 64; i++)
@@ -133,7 +118,33 @@ void main(void) {
 		pixel(i,64,1);
 	for(int i = 0; i < 64; i++)
 		pixel(128,i,1);
-	*/
+}
+
+unsigned char is_on(POBJECT o1, POBJECT o2)
+{
+	if((o1->posx+o1->geo->sizex>o2->posx)&&(o2->posx+o2->geo->sizex>o1->posx)
+	 &&(o1->posy+o1->geo->sizey>o2->posy)&&(o2->posy+o2->geo->sizey>o1->posy))
+	{
+		return 1;
+	}
+	return 0;
+}
+
+void main(void) {	
+	init_app();
+	ascii_init();
+	graphic_initialize();
+	//graphic_clear_screen();
+	draw_ascii("0");
+	draw_frame();
+
+	int speed = 40;
+	int score = 0;
+	
+	POBJECT pLusen = &lusen;
+	POBJECT pFruit = &fruit;
+	POBJECT pEnemy = &enemy;
+	
 	//random_position(pFruit);
 	pFruit->draw(pFruit);
 	pEnemy->draw(pEnemy);
@@ -141,36 +152,23 @@ void main(void) {
 	
 	while(1) {
 		pLusen->move(pLusen);
-		//***************************
-		pEnemy->dirx = (rand()%30)+1;
-		pEnemy->diry = (rand()%30)+1;
-		
-		if(pEnemy->posx + pEnemy->dirx*turn_x < 1)
-			turn_x = 1;
-		if(pEnemy->posy + pEnemy->diry*turn_y < 1)
-			turn_y = 1;
-		if(pEnemy->posx + pEnemy->geo->sizex + pEnemy->dirx*turn_x > 128)
-			turn_x = -1;
-		if(pEnemy->posy + pEnemy->geo->sizey + pEnemy->diry*turn_y > 64)
-			turn_y = -1;
-		pEnemy->dirx *= turn_x;
-		pEnemy->diry *= turn_y;
 		pEnemy->move(pEnemy);
 		
-		if((pLusen->posx > pEnemy->posx)&&((pLusen->posx - pEnemy->posx) < 5) || (pLusen->posx < pEnemy->posx)&&((pEnemy->posx - pLusen->posx) < 5))
+		if(is_on(pEnemy, pLusen))
 		{
 			draw_ascii("DEATH by Enemy");
-			//while(1){}
+			while(1){}
 		}
-		//********************************
+		
 		switch (keyb()) {
 			case 2: pLusen->set_speed(pLusen, 0, -SIZE); break;
 			case 4: pLusen->set_speed(pLusen, -SIZE, 0); break;
 			case 6: pLusen->set_speed(pLusen, SIZE, 0); break;
 			case 8: pLusen->set_speed(pLusen, 0, SIZE); break;
 		}
+		pEnemy->set_speed(pEnemy, 1, 30);
 		
-		if ((pLusen->posx == pFruit->posx) && (pLusen->posy == pFruit->posy)) {
+		if (is_on(pLusen, pFruit)) {
 			score++;
 			pFruit->clear(pFruit);
 			random_position(pFruit);

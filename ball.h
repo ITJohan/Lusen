@@ -28,3 +28,4 @@ void clear_object(POBJECT o);
 void move_object(POBJECT o);
 void random_position(POBJECT o);
 void move_random_direction(POBJECT o);
+void set_random_speed(POBJECT o, int min, int max);
