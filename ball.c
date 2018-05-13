@@ -2,6 +2,8 @@
 
 unsigned short lfsr = 0xACE1u;
 unsigned short bit;
+int turn_x = 1;
+int turn_y = 1;
 
 unsigned short rand()
 {
@@ -9,9 +11,27 @@ unsigned short rand()
 	return lfsr =  (lfsr >> 1) | (bit << 15);
 }
 
+
 void set_object_speed(POBJECT o, int speedx, int speedy) {
 	o->dirx = speedx;
 	o->diry = speedy;
+}
+
+void set_random_speed(POBJECT o, int min, int max)
+{
+	o->dirx = (char)(rand()%max)+min;
+	o->diry = (char)(rand()%max)+min;
+		
+	if(o->posx + o->dirx*turn_x < 1)
+		turn_x = 1;
+	if(o->posy + o->diry*turn_y < 1)
+		turn_y = 1;
+	if(o->posx + o->geo->sizex + o->dirx*turn_x > 128)
+		turn_x = -1;
+	if(o->posy + o->geo->sizey + o->diry*turn_y > 64)
+		turn_y = -1;
+	o->dirx *= turn_x;
+	o->diry *= turn_y;
 }
 
 void draw_object(POBJECT o) {
@@ -47,6 +67,13 @@ void update_object(POBJECT o) {
 	}
 	o->posx += o->dirx;
 	o->posy += o->diry;
+}
+
+void move_random_direction(POBJECT o)
+{
+	clear_object(o);
+	update_object(o);
+	draw_object(o);
 }
 
 void move_object(POBJECT o) {
